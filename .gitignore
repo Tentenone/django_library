@@ -341,6 +341,6 @@ healthchecksdb
 
 # Text backup files
 *.bak
-#Database
+# Database
 # *.sqlite3
 

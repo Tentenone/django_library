@@ -1,13 +1,8 @@
 from django.shortcuts import render, redirect
 from .models import Book, Author, BookInstance, Genre
 from django.contrib.auth.models import User
-from django.views import generic
-from django.contrib.auth.mixins import LoginRequiredMixin
+
 import pdb
-from django.urls import reverse
-import datetime
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
 from .forms import ChooseAuthorForm
 
 def index(request):
@@ -29,8 +24,29 @@ def index(request):
     # Отрисовка HTML-шаблона index.html с данными внутри переменной контекста context
     return render(request,
         template,
-        context={'num_books':num_books,'num_instances':num_instances,'num_instances_available':num_instances_available,'num_authors':num_authors,'num_visits':num_visits, "authorsform": authorsform},
+        context={'num_books':num_books,'num_instances':num_instances,'num_instances_available':num_instances_available,'num_authors':num_authors,'num_visits':num_visits, 'authorsform': authorsform},
         )
+
+from django.views import generic
+
+# Шаблон для класу за замовчуванням тут: /application_name/templates/application_name/modelName_list.html
+class BookListView(generic.ListView):
+    model = Book
+    paginate_by = 10
+
+# Шаблон для класу за замовчуванням тут: /application_name/templates/application_name/modelName_detail.html
+class BookDetailView(generic.DetailView):
+    model = Book
+
+class AuthorListView(generic.ListView):
+    model = Author
+    paginate_by = 10
+
+class AuthorDetailView(generic.DetailView):
+    model = Author
+
+
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
     """
@@ -53,22 +69,6 @@ class LoanedBooksAllListView(LoginRequiredMixin,generic.ListView):
     def get_queryset(self):
         return BookInstance.objects.filter(status__exact='o').order_by('due_back')
 
-# Шаблон для класу за замовчуванням тут: /application_name/templates/application_name/modelName_list.html
-class BookListView(generic.ListView):
-    model = Book
-    paginate_by = 10
-
-# Шаблон для класу за замовчуванням тут: /application_name/templates/application_name/modelName_detail.html
-class BookDetailView(generic.DetailView):
-    model = Book
-   
-class AuthorListView(generic.ListView):
-    model = Author
-    paginate_by = 10
-
-class AuthorDetailView(generic.DetailView):
-    model = Author
-
 from django.contrib.auth.decorators import permission_required
 
 from django.shortcuts import get_object_or_404
@@ -76,7 +76,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 import datetime
 
-from .forms import RenewBookForm
+from catalog.forms import RenewBookForm
 
 @permission_required('catalog.can_mark_returned')
 def renew_book_librarian(request, pk):
@@ -107,29 +107,33 @@ def renew_book_librarian(request, pk):
 
     return render(request, 'catalog/book_renew_librarian.html', {'form': form, 'bookinst':book_inst})
 
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from .models import Author
+
 # Шаблон для класу за замовчуванням тут: /application_name/templates/application_name/modelName_form.html
 class AuthorCreate(CreateView):
     model = Author
     fields = '__all__'
     initial={'date_of_death':'12/10/2016',}
 
-def AuthorUpdateList(request):
-    pk = request.POST.get('authorName')
-    return redirect('author_update', pk = pk)
-   
 # Шаблон для класу за замовчуванням тут: /application_name/templates/application_name/modelName_form.html
 class AuthorUpdate(UpdateView):
     model = Author
     fields = ['first_name','last_name','date_of_birth','date_of_death']
 
-def AuthorDeleteList(request):
-    pk = request.POST.get('authorName')
-    return redirect('author_delete', pk = pk)
-# Шаблон для класу за замовчуванням тут: /application_name/templates/application_name/modelName_confirm_delete.html
 class AuthorDelete(DeleteView):
     model = Author
     success_url = reverse_lazy('authors')
 
+def AuthorUpdateList(request):
+    pk = request.POST.get('authorName')
+    return redirect('author_update', pk = pk)
+   
+def AuthorDeleteList(request):
+    pk = request.POST.get('authorName')
+    return redirect('author_delete', pk = pk)
+# Шаблон для класу за замовчуванням тут: /application_name/templates/application_name/modelName_confirm_delete.html
 
 class BookCreate(CreateView):
     model = Book
