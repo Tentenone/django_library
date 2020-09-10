@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'cg#p$g+j9tax!#a3cup@1$8obt2')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = bool(os.environ.get('DJANGO_DEBUG', True))
+DEBUG = os.environ.get('DJANGO_DEBUG') == 'True'
 
 # Set hosts to allow any app on Heroku and the local testing URL
 #ALLOWED_HOSTS = ['djangoloclibmdn.herokuapp.com','127.0.0.1', '176.36.196.123']
