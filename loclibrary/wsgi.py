@@ -15,5 +15,3 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'loclibrary.settings')
 
 application = get_wsgi_application()
 
-#from whitenoise.Django import DjangoWhiteNoise
-#application = DjangoWhiteNoise(application)
